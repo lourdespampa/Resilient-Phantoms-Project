@@ -50,3 +50,43 @@ def get_artist(name: str):
 # - API route to get a list of albums for a genre
 # - API route to get a list of albums for a year
 # - API route to get a list of albums for a decade
+
+# Get a random song 
+@app.get("/random-song")
+async def get_random_song():
+    songs = [
+        {"title": "Song1", "artist": "Artist1"},
+        {"title": "Song2", "artist": "Artist2"},
+        {"title": "Song3", "artist": "Artist3"},
+    ]
+    import random
+    return random.choice(songs)
+
+# Add a favorite song
+@app.post("/favorites")
+async def add_to_favorites(song: dict):
+    favorites = []
+    favorites.append(song)
+    return {"message": "Song added to favorites"}
+
+# To get a song lyrics
+
+@app.get("/lyrics/{title}")
+async def get_lyrics(title: str):
+    lyrics = {
+        "Song1": "These are the lyrics to Song1",
+"Song2": "These are the lyrics to Song2",
+    }
+    return lyrics.get(title, "Lyrics not found")
+
+# search for a song
+
+@app.get("/search/songs")
+async def search_songs(tittle: str):
+    songs = [
+        {"title": "Song1", "artist": "Artist1"},
+        {"title": "Song2", "artist": "Artist2"},
+        {"title": "Song3", "artist": "Artist3"},
+    ]
+    return songs
+
