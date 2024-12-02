@@ -46,7 +46,7 @@ def get_artist(name: str):
         raise HTTPException(
             status_code=400, detail=f"Invalid artist name: {name}")
 
-# Here we can add more API routes for other functionality, like:
+
 # - API route to get a list of albums for a genre
 # - API route to get a list of albums for a year
 # - API route to get a list of albums for a decade
