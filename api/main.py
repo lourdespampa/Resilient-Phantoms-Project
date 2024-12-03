@@ -104,4 +104,3 @@ async def search_songs(title: str):
         {"title": "Song3", "artist": "Artist3"},
     ]
     return songs
-
