@@ -7,4 +7,4 @@ __pycache__
 venv
 appcache
 .vscode
-ds_store
+.DS_Store
