@@ -60,14 +60,14 @@
         background-color: #0056b3;
       }
 
-      .albums {
+      .albums, .favorites, .songs {
         overflow-y: auto;
         flex-grow: 1;
         text-align: left;
         margin-top: 20px;
       }
 
-      .album {
+      .album, .song, .favorite {
         background-color: #f9f9f9;
         padding: 15px;
         border-radius: 8px;
@@ -75,240 +75,179 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
-      .album img {
-        width: 60px;
-        height: 60px;
-        margin-right: 15px;
+      .favorite-actions button {
+        margin-top: 10px;
+        background-color: #28a745;
+        color: white;
+        padding: 5px 10px;
+        border: none;
         border-radius: 4px;
-        float: left;
+        cursor: pointer;
       }
 
-      .album-info {
-        overflow: hidden;
-      }
-
-      .album-info h2 {
-        font-size: 18px;
-        margin: 0 0 5px 0;
-        color: #333333;
-      }
-
-      .album-info p {
-        font-size: 14px;
-        margin: 0 0 10px 0;
-        color: #777777;
-      }
-
-      .disc-section {
-        margin-top: 15px;
-      }
-
-      .disc-section h3 {
-        margin-bottom: 10px;
-        font-size: 16px;
-        color: #555555;
-      }
-
-      .track-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-      }
-
-      .track {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px;
-        border-bottom: 1px solid #e0e0e0;
-      }
-
-      .track:last-child {
-        border-bottom: none;
-      }
-
-      .track-number {
-        color: #777777;
-        font-size: 12px;
-        width: 25px;
-      }
-
-      .track-name {
-        flex-grow: 1;
-        padding-left: 10px;
-        color: #333333;
-      }
-
-      .track-time {
-        color: #777777;
-        font-size: 12px;
-      }
-
-      .track-preview {
-        display: flex;
-        align-items: center;
+      .favorite-actions button:hover {
+        background-color: #218838;
       }
 
       .audio-player {
-        width: 300px; /* Adjust width as needed */
-        height: 15px; /* Adjust height as needed */
-        margin-left: 5px;
-      }
-
-      .audio-player::-webkit-media-controls {
-        /* WebKit browsers specific styling, not always necessary */
-      }
-
-      .audio-player::-webkit-media-controls-panel {
-        /* WebKit browsers specific styling, not always necessary */
-      }
-
-      .audio-player::-webkit-media-controls-play-button {
-        /* WebKit browsers specific styling, not always necessary */
+        margin-top: 10px;
+        width: 100%;
+        height: 20px;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Music Catalog</h1>
+
+      <!-- Artist Search -->
       <div class="search-box">
         <input type="text" id="artist-name" placeholder="Enter artist name" />
-        <button>Search</button>
+        <button id="search-artist-btn">Search Artist</button>
       </div>
+      <div class="albums" id="albums"></div>
 
-      <div class="albums" id="albums">
-        <!-- Album entries will be inserted here dynamically -->
+      <!-- Song Search -->
+      <div class="search-box">
+        <input type="text" id="song-title" placeholder="Enter song title" />
+        <button id="search-song-btn">Search Song</button>
       </div>
+      <div class="songs" id="songs"></div>
+
+      <!-- Favorites Section -->
+      <h2>Favorite Songs</h2>
+      <div class="favorites" id="favorites"></div>
     </div>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        const artistInput = document.getElementById("artist-name")
-        const searchButton = document.querySelector("button")
+        const artistSearchBtn = document.getElementById("search-artist-btn");
+        const songSearchBtn = document.getElementById("search-song-btn");
 
-        searchButton.addEventListener("click", () => {
-          searchAlbums()
-        })
+        artistSearchBtn.addEventListener("click", searchAlbums);
+        songSearchBtn.addEventListener("click", searchSongs);
 
-        artistInput.addEventListener("keydown", (event) => {
-          if (event.key === "Enter") {
-            event.preventDefault() // Prevent form submission if inside a form
-            searchAlbums()
-          }
-        })
-
-        artistInput.focus()
-      })
+        fetchFavorites();
+      });
 
       async function searchAlbums() {
-        const artistInput = document.getElementById("artist-name")
-        const searchButton = document.querySelector("button")
-
-        const artistName = artistInput?.value.trim()
-        if (!artistName) {
-          alert("Please enter an artist name.")
-          return
-        }
+        const artistName = document.getElementById("artist-name").value.trim();
+        if (!artistName) return alert("Enter an artist name.");
 
         try {
-          searchButton.disabled = true
-          artistInput.disabled = true
-          const response = await fetch(
-            `/artist/${encodeURIComponent(artistName)}`
-          )
-          const data = await response.json()
-          if (response.ok) {
-            displayAlbums(data)
-            artistInput.value = ""
-          }
-          else 
-            alert(data.detail ?? "Oops! Something failed. Please try again.")
+          const response = await fetch(`/artist/${encodeURIComponent(artistName)}`);
+          const data = await response.json();
+          if (response.ok) displayAlbums(data);
+          else alert(data.detail || "Error fetching albums.");
         } catch (error) {
-          console.error("Error:", error)
-          alert("Could not retrieve albums. Please try again later.")
-        } finally {
-          searchButton.disabled = false
-          artistInput.disabled = false
-          artistInput.focus()
+          console.error("Error:", error);
+        }
+      }
+
+      async function searchSongs() {
+        const songTitle = document.getElementById("song-title").value.trim();
+        if (!songTitle) return alert("Enter a song title.");
+
+        try {
+          const response = await fetch(`/song/${encodeURIComponent(songTitle)}`);
+          const data = await response.json();
+          if (response.ok) displaySongs(data.songs);
+          else alert(data.detail || "Error fetching songs.");
+        } catch (error) {
+          console.error("Error:", error);
         }
       }
 
       function displayAlbums(data) {
-        const albumsContainer = document.getElementById("albums")
-        albumsContainer.innerHTML = "" // Clear any existing content
+        const albumsContainer = document.getElementById("albums");
+        albumsContainer.innerHTML = "";
 
-        if (data.albums.length === 0) {
-          albumsContainer.innerHTML = "<p>No albums found for this artist.</p>"
-          return
+        if (!data.albums || !data.albums.length) {
+          albumsContainer.innerHTML = "<p>No albums found.</p>";
+          return;
         }
 
-        data.albums && data.albums.forEach((album) => {
-          const albumElement = document.createElement("div")
-          albumElement.classList.add("album")
-
-          const discs = groupTracksByDisc(album.tracks)
-
-          const discSections = discs
-            .map(
-              (disc) => `
-          <div class="disc-section">
-              <h3>Disc ${disc.discNumber}</h3>
-              <div class="track-list">
-                  ${disc.tracks
-                    .map(
-                      (track) => `
-                      <div class="track">
-                          <div class="track-number">${track.number}</div>
-                          <div class="track-name">${track.name}</div>
-                          <div class="track-time">${(
-                            track.time_millis / 60000
-                          ).toFixed(2)}
-                          </div>
-                          <div class="track-preview">
-                              ${track.preview_url ? `
-                              <audio class="audio-player" controls src="${
-                                track.preview_url
-                              }" />` : ""}
-                          </div>
-                      </div>
-                  `
-                    )
-                    .join("")}
-              </div>
-          </div>
-      `
-            )
-            .join("")
-
+        data.albums.forEach((album) => {
+          const albumElement = document.createElement("div");
+          albumElement.classList.add("album");
           albumElement.innerHTML = `
-                <img src="${album.image_url.replace(
-                  "100x100",
-                  "600x600"
-                )}" alt="Album Cover">
-                <div class="album-info">
-                    <h2>${album.title}</h2>
-                    <p>${data.name}</p>
-                    ${discSections}
-                </div>
-            `
-
-          albumsContainer.appendChild(albumElement)
-        })
+            <h2>${album.title}</h2>
+            <p>By ${data.name}</p>
+          `;
+          albumsContainer.appendChild(albumElement);
+        });
       }
 
-      function groupTracksByDisc(tracks) {
-        const discs = {}
+      function displaySongs(songs) {
+        const songsContainer = document.getElementById("songs");
+        songsContainer.innerHTML = "";
 
-        tracks && tracks.forEach((track) => {
-          if (!discs[track.disc]) {
-            discs[track.disc] = {
-              discNumber: track.disc,
-              tracks: [],
-            }
-          }
-          discs[track.disc].tracks.push(track)
-        })
+        if (!songs || !songs.length) {
+          songsContainer.innerHTML = "<p>No songs found.</p>";
+          return;
+        }
 
-        return Object.values(discs)
+        songs.forEach((song) => {
+          const songElement = document.createElement("div");
+          songElement.classList.add("song");
+          songElement.innerHTML = `
+            <div>
+              <strong>${song.title}</strong> by ${song.artist}<br />
+              Album: ${song.album}
+              <audio class="audio-player" controls src="${song.preview_url}"></audio>
+              <div class="favorite-actions">
+                <button onclick="addToFavorites('${song.title}', '${song.artist}', '${song.album}', '${song.preview_url}')">Add to Favorites</button>
+              </div>
+            </div>
+          `;
+          songsContainer.appendChild(songElement);
+        });
+      }
+
+      async function addToFavorites(title, artist, album, previewUrl) {
+        try {
+          const response = await fetch("/favorites", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title, artist, album, preview_url: previewUrl }),
+          });
+          const data = await response.json();
+          if (response.ok) fetchFavorites();
+          else alert(data.detail || "Error adding to favorites.");
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      async function fetchFavorites() {
+        try {
+          const response = await fetch("/favorites");
+          const data = await response.json();
+          displayFavorites(data.favorites || []);
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      function displayFavorites(favorites) {
+        const favoritesContainer = document.getElementById("favorites");
+        favoritesContainer.innerHTML = "";
+
+        if (!favorites.length) {
+          favoritesContainer.innerHTML = "<p>No favorite songs yet.</p>";
+          return;
+        }
+
+        favorites.forEach((fav) => {
+          const favoriteElement = document.createElement("div");
+          favoriteElement.classList.add("favorite");
+          favoriteElement.innerHTML = `
+            <strong>${fav.title}</strong> by ${fav.artist}<br />
+            Album: ${fav.album}
+            <audio class="audio-player" controls src="${fav.preview_url}"></audio>
+          `;
+          favoritesContainer.appendChild(favoriteElement);
+        });
       }
     </script>
   </body>
