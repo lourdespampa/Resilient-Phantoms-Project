@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Music Catalog</title>
     <style>
-      /* Keep your existing styles intact */
       body {
         font-family: Arial, sans-serif;
         background-color: #f0f0f0;
@@ -61,16 +60,14 @@
         background-color: #0056b3;
       }
 
-      .albums,
-      .songs {
+      .albums, .favorites, .songs {
         overflow-y: auto;
         flex-grow: 1;
         text-align: left;
         margin-top: 20px;
       }
 
-      .album,
-      .song {
+      .album, .song, .favorite {
         background-color: #f9f9f9;
         padding: 15px;
         border-radius: 8px;
@@ -78,10 +75,18 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
-      .song-info {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
+      .favorite-actions button {
+        margin-top: 10px;
+        background-color: #28a745;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .favorite-actions button:hover {
+        background-color: #218838;
       }
 
       .audio-player {
@@ -95,78 +100,69 @@
     <div class="container">
       <h1>Music Catalog</h1>
 
-      <!-- Artist Search Section -->
+      <!-- Artist Search -->
       <div class="search-box">
         <input type="text" id="artist-name" placeholder="Enter artist name" />
-        <button id="artist-search-btn">Search Artist</button>
+        <button id="search-artist-btn">Search Artist</button>
       </div>
       <div class="albums" id="albums"></div>
 
-      <!-- Song Search Section -->
+      <!-- Song Search -->
       <div class="search-box">
         <input type="text" id="song-title" placeholder="Enter song title" />
-        <button id="song-search-btn">Search Song</button>
+        <button id="search-song-btn">Search Song</button>
       </div>
       <div class="songs" id="songs"></div>
+
+      <!-- Favorites Section -->
+      <h2>Favorite Songs</h2>
+      <div class="favorites" id="favorites"></div>
     </div>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        // Artist Search
-        const artistInput = document.getElementById("artist-name");
-        const artistSearchButton = document.getElementById("artist-search-btn");
+        const artistSearchBtn = document.getElementById("search-artist-btn");
+        const songSearchBtn = document.getElementById("search-song-btn");
 
-        artistSearchButton.addEventListener("click", () => searchAlbums());
-        artistInput.addEventListener("keydown", (event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            searchAlbums();
-          }
-        });
+        artistSearchBtn.addEventListener("click", searchAlbums);
+        songSearchBtn.addEventListener("click", searchSongs);
 
-        // Song Search
-        const songInput = document.getElementById("song-title");
-        const songSearchButton = document.getElementById("song-search-btn");
-
-        songSearchButton.addEventListener("click", () => searchSongs());
-        songInput.addEventListener("keydown", (event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            searchSongs();
-          }
-        });
+        fetchFavorites();
       });
 
-      // Search for Albums (Existing Functionality)
       async function searchAlbums() {
-        const artistInput = document.getElementById("artist-name");
-        const albumsContainer = document.getElementById("albums");
-
-        const artistName = artistInput?.value.trim();
-        if (!artistName) {
-          alert("Please enter an artist name.");
-          return;
-        }
+        const artistName = document.getElementById("artist-name").value.trim();
+        if (!artistName) return alert("Enter an artist name.");
 
         try {
           const response = await fetch(`/artist/${encodeURIComponent(artistName)}`);
           const data = await response.json();
-          if (response.ok) {
-            displayAlbums(data);
-          } else {
-            alert(data.detail ?? "An error occurred while fetching albums.");
-          }
+          if (response.ok) displayAlbums(data);
+          else alert(data.detail || "Error fetching albums.");
         } catch (error) {
           console.error("Error:", error);
-          alert("Could not retrieve albums. Please try again later.");
+        }
+      }
+
+      async function searchSongs() {
+        const songTitle = document.getElementById("song-title").value.trim();
+        if (!songTitle) return alert("Enter a song title.");
+
+        try {
+          const response = await fetch(`/song/${encodeURIComponent(songTitle)}`);
+          const data = await response.json();
+          if (response.ok) displaySongs(data.songs);
+          else alert(data.detail || "Error fetching songs.");
+        } catch (error) {
+          console.error("Error:", error);
         }
       }
 
       function displayAlbums(data) {
         const albumsContainer = document.getElementById("albums");
-        albumsContainer.innerHTML = ""; // Clear previous content
+        albumsContainer.innerHTML = "";
 
-        if (!data.albums || data.albums.length === 0) {
+        if (!data.albums || !data.albums.length) {
           albumsContainer.innerHTML = "<p>No albums found.</p>";
           return;
         }
@@ -182,55 +178,75 @@
         });
       }
 
-      // Search for Songs (New Functionality)
-      async function searchSongs() {
-        const songInput = document.getElementById("song-title");
+      function displaySongs(songs) {
         const songsContainer = document.getElementById("songs");
+        songsContainer.innerHTML = "";
 
-        const songTitle = songInput?.value.trim();
-        if (!songTitle) {
-          alert("Please enter a song title.");
-          return;
-        }
-
-        try {
-          const response = await fetch(`/song/${encodeURIComponent(songTitle)}`);
-          const data = await response.json();
-          if (response.ok) {
-            displaySongs(data);
-          } else {
-            alert(data.detail ?? "An error occurred while fetching songs.");
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          alert("Could not retrieve songs. Please try again later.");
-        }
-      }
-
-      function displaySongs(data) {
-        const songsContainer = document.getElementById("songs");
-        songsContainer.innerHTML = ""; // Clear previous content
-
-        if (!data.songs || data.songs.length === 0) {
+        if (!songs || !songs.length) {
           songsContainer.innerHTML = "<p>No songs found.</p>";
           return;
         }
 
-        data.songs.forEach((song) => {
+        songs.forEach((song) => {
           const songElement = document.createElement("div");
           songElement.classList.add("song");
           songElement.innerHTML = `
-            <div class="song-info">
-              <strong>${song.name}</strong> by ${song.artist}<br />
+            <div>
+              <strong>${song.title}</strong> by ${song.artist}<br />
               Album: ${song.album}
-              ${
-                song.preview_url
-                  ? `<audio class="audio-player" controls src="${song.preview_url}"></audio>`
-                  : ""
-              }
+              <audio class="audio-player" controls src="${song.preview_url}"></audio>
+              <div class="favorite-actions">
+                <button onclick="addToFavorites('${song.title}', '${song.artist}', '${song.album}', '${song.preview_url}')">Add to Favorites</button>
+              </div>
             </div>
           `;
           songsContainer.appendChild(songElement);
+        });
+      }
+
+      async function addToFavorites(title, artist, album, previewUrl) {
+        try {
+          const response = await fetch("/favorites", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title, artist, album, preview_url: previewUrl }),
+          });
+          const data = await response.json();
+          if (response.ok) fetchFavorites();
+          else alert(data.detail || "Error adding to favorites.");
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      async function fetchFavorites() {
+        try {
+          const response = await fetch("/favorites");
+          const data = await response.json();
+          displayFavorites(data.favorites || []);
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      function displayFavorites(favorites) {
+        const favoritesContainer = document.getElementById("favorites");
+        favoritesContainer.innerHTML = "";
+
+        if (!favorites.length) {
+          favoritesContainer.innerHTML = "<p>No favorite songs yet.</p>";
+          return;
+        }
+
+        favorites.forEach((fav) => {
+          const favoriteElement = document.createElement("div");
+          favoriteElement.classList.add("favorite");
+          favoriteElement.innerHTML = `
+            <strong>${fav.title}</strong> by ${fav.artist}<br />
+            Album: ${fav.album}
+            <audio class="audio-player" controls src="${fav.preview_url}"></audio>
+          `;
+          favoritesContainer.appendChild(favoriteElement);
         });
       }
     </script>
