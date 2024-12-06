@@ -3,6 +3,7 @@ import re
 from fastapi import FastAPI, HTTPException, Request, responses, templating
 from model.artist import Artist
 from service.itunes import search_artist
+from service.itunes import search_song_by_title
 
 """
 This is the main entry point for the application.
@@ -50,3 +51,19 @@ def get_artist(name: str):
 # - API route to get a list of albums for a genre
 # - API route to get a list of albums for a year
 # - API route to get a list of albums for a decade
+
+# - API route to search a song by its title
+@app.get("/song/{title}")
+def search_song(title: str, limit: int = 10):
+    """
+    API route to search for songs by title using the iTunes API.
+    """
+    try:
+        songs = search_song_by_title(title, limit)
+        if not songs:
+            raise HTTPException(status_code=404, detail=f"No songs found matching title: {title}")
+        return {"songs": [song.__dict__ for song in songs]}
+    except Exception as e:
+        logging.error(f"Error searching for songs: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred while searching for songs")
+

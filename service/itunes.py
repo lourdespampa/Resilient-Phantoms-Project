@@ -69,3 +69,35 @@ def search_artist(artist_name: str, limit: int) -> Artist:
     for album in artist.albums:
         get_tracks(album)
     return artist
+
+import requests
+from model.track import Track
+import logging
+
+def search_song_by_title(title: str, limit: int = 10) -> list[Track]:
+    """
+    Search for songs by title using the iTunes API.
+    """
+    params = {
+        "term": title,
+        "entity": "song",
+        "limit": limit
+    }
+    try:
+        response = requests.get("https://itunes.apple.com/search", params=params)
+        response.raise_for_status()
+        data = response.json()
+        tracks = data.get("results", [])
+        return [
+            Track(
+                name=track["trackName"],
+                disc=track.get("discNumber", 1),
+                number=track.get("trackNumber", 1),
+                time_millis=track.get("trackTimeMillis", 0),
+                preview_url=track.get("previewUrl")
+            )
+            for track in tracks
+        ]
+    except requests.RequestException as e:
+        logging.error(f"Failed to fetch songs for title '{title}': {e}")
+        return []
