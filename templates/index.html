@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Music Catalog</title>
     <style>
+      :root {
+        --bg-color: #f0f0f0;
+        --text-color: #333333;
+        --container-bg: #ffffff;
+        --button-bg: #007bff;
+        --button-hover: #0056b3;
+      }
+      body.dark-mode {
+        --bg-color: #181818;
+        --text-color: #ffffff;
+        --container-bg: #282828;
+        --button-bg: #bb86fc;
+        --button-hover: #985eff;
+      }
       body {
         font-family: Arial, sans-serif;
         background-color: #f0f0f0;
@@ -94,9 +108,29 @@
         width: 100%;
         height: 20px;
       }
+
+      /* Dark Mode Variables */
+      
+      .dark-mode-toggle {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: var(--button-bg);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .dark-mode-toggle:hover {
+        background-color: var(--button-hover);
+      }
     </style>
   </head>
   <body>
+    <button id="darkModeToggle" class="dark-mode-toggle">Dark Mode</button>
     <div class="container">
       <h1>Music Catalog</h1>
 
@@ -115,10 +149,11 @@
       <div class="songs" id="songs"></div>
 
       <!-- Favorites Section -->
+      
+    </div>
+    <div class="container">
       <h2>Favorite Songs</h2>
       <div class="favorites" id="favorites"></div>
-    </div>
-
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const artistSearchBtn = document.getElementById("search-artist-btn");
@@ -249,6 +284,16 @@
           favoritesContainer.appendChild(favoriteElement);
         });
       }
+      const toggleButton = document.getElementById("darkModeToggle");
+      const body = document.body;
+
+      toggleButton.addEventListener("click", () => {
+        body.classList.toggle("dark-mode");
+        toggleButton.textContent = body.classList.contains("dark-mode")
+          ? "Light Mode"
+          : "Dark Mode";
+      });
     </script>
+    </div>
   </body>
 </html>
