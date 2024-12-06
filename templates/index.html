@@ -130,9 +130,9 @@
     </style>
   </head>
   <body>
-    <button id="darkModeToggle" class="dark-mode-toggle">Dark Mode</button>
-    <div class="container">
-      <h1>Music Catalog</h1>
+    <button id="darkModeToggle" class="dark-mode-toggle">🌙</button>
+    <div class="container" id="container">
+      <h1 id="title">Music Catalog</h1>
 
       <!-- Artist Search -->
       <div class="search-box">
@@ -149,9 +149,8 @@
       <div class="songs" id="songs"></div>
 
       <!-- Favorites Section -->
-      
-    </div>
-    <div class="container">
+      </div>
+      <div class="container" id="favorite-container">  
       <h2>Favorite Songs</h2>
       <div class="favorites" id="favorites"></div>
     <script>
@@ -286,12 +285,44 @@
       }
       const toggleButton = document.getElementById("darkModeToggle");
       const body = document.body;
+      const title = document.getElementById("title");
+      const mainContainer = document.getElementById("container");
+      const favoriteContainer = document.getElementById("favorite-container")
 
       toggleButton.addEventListener("click", () => {
-        body.classList.toggle("dark-mode");
-        toggleButton.textContent = body.classList.contains("dark-mode")
-          ? "Light Mode"
-          : "Dark Mode";
+        if (mainContainer.style.backgroundColor === "white") {
+        mainContainer.style.backgroundColor = "#141414"; 
+        favoriteContainer.style.backgroundColor = "#141414";
+        body.style.color = "white"; 
+        title.style.color = "white";
+        toggleButton.textContent = "☀️";
+      } else {
+        mainContainer.style.backgroundColor = "white";
+        favoriteContainer.style.backgroundColor = "white";
+        body.style.color = "black"; 
+        title.style.color = "black";
+        toggleButton.textContent = "🌙";
+      }
+
+
+
+
+      //const toggleButton = document.getElementById("darkModeToggle");
+      //const body = document.getElementById("container");
+      //const favoriteContainer = document.getElementById("favorite-container")
+
+      //toggleButton.addEventListener("click", () => {
+      //if (body.style.backgroundColor === "white") {
+      // Check the current background color
+      //body.style.backgroundColor = "#141414"; // Change to dark background
+      //favoriteContainer.style.backgroundColor = "#141414";
+      //body.style.color = "white"; // Change text color for contrast
+      //toggleButton.textContent = "☀️";
+      //} else {
+      //body.style.backgroundColor = "white"; // Change to light background
+      //favoriteContainer.style.backgroundColor = "white";
+      //body.style.color = "black"; // Change text color for contrast
+      //toggleButton.textContent = "🌙";
       });
     </script>
     </div>
