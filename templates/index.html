@@ -1,254 +1,283 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Music Catalog</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
-        margin: 0;
-        padding: 0;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music Catalog</title>
+  <style>
+    /* Global Styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #ffe4e1;
+      margin: 0;
+      padding: 0;
+    }
 
-      .container {
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        width: 800px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-      }
+    /* Container */
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #fff0f5;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
-      .container h1 {
-        font-size: 24px;
-        margin-bottom: 20px;
-        color: #333333;
-      }
+    /* Headings */
+    h1, h2 {
+      font-size: 1.8rem;
+      color: #c71585;
+      margin-bottom: 20px;
+      text-align: center;
+    }
 
-      .search-box {
-        display: flex;
-        margin-bottom: 20px;
-      }
+    h2 {
+      font-size: 1.5rem;
+      margin-top: 30px;
+    }
 
-      .search-box input {
-        width: calc(100% - 60px);
-        padding: 10px;
-        border: 1px solid #cccccc;
-        border-radius: 4px 0 0 4px;
-        outline: none;
-      }
+    /* Search Box */
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
 
-      .search-box button {
-        padding: 10px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 0 4px 4px 0;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
+    .search-box input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ffc0cb;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
 
-      .search-box button:hover {
-        background-color: #0056b3;
-      }
+    .search-box button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #ff69b4;
+      color: white;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
 
-      .albums, .favorites, .songs {
-        overflow-y: auto;
-        flex-grow: 1;
-        text-align: left;
-        margin-top: 20px;
-      }
+    .search-box button:hover {
+      background-color: #db7093;
+    }
 
-      .album, .song, .favorite {
-        background-color: #f9f9f9;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
+    /* Section Styling */
+    .section {
+      margin-bottom: 30px;
+    }
 
-      .favorite-actions button {
-        margin-top: 10px;
-        background-color: #28a745;
-        color: white;
-        padding: 5px 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
+    /* Cards */
+    .card {
+      background-color: #ffe4e1;
+      padding: 15px;
+      border: 1px solid #ffb6c1;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-      .favorite-actions button:hover {
-        background-color: #218838;
-      }
+    .card h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.2rem;
+      color: #c71585;
+    }
 
-      .audio-player {
-        margin-top: 10px;
-        width: 100%;
-        height: 20px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Music Catalog</h1>
+    /* Audio Player */
+    .audio-player {
+      width: 100%;
+      margin-top: 10px;
+    }
 
-      <!-- Artist Search -->
-      <div class="search-box">
-        <input type="text" id="artist-name" placeholder="Enter artist name" />
-        <button id="search-artist-btn">Search Artist</button>
-      </div>
-      <div class="albums" id="albums"></div>
+    /* Buttons */
+    .actions button {
+      margin-top: 10px;
+      padding: 5px 15px;
+      border: none;
+      background-color: #ff69b4;
+      color: white;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
 
-      <!-- Song Search -->
-      <div class="search-box">
-        <input type="text" id="song-title" placeholder="Enter song title" />
-        <button id="search-song-btn">Search Song</button>
-      </div>
-      <div class="songs" id="songs"></div>
+    .actions button:hover {
+      background-color: #db7093;
+    }
 
-      <!-- Favorites Section -->
-      <h2>Favorite Songs</h2>
-      <div class="favorites" id="favorites"></div>
+    /* No Results or Empty States */
+    .empty-message {
+      text-align: center;
+      color: #c71585;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Music Catalog</h1>
+
+    <!-- Search -->
+    <div class="search-box">
+      <input type="text" id="search-query" placeholder="Search for songs by title" />
+      <button id="search-btn">Search</button>
     </div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const artistSearchBtn = document.getElementById("search-artist-btn");
-        const songSearchBtn = document.getElementById("search-song-btn");
+    <div id="results" class="section"></div>
 
-        artistSearchBtn.addEventListener("click", searchAlbums);
-        songSearchBtn.addEventListener("click", searchSongs);
+    <!-- Recently Played -->
+    <div class="section">
+      <h2>Recently Played</h2>
+      <div id="recently-played" class="empty-message">No recently played songs.</div>
+    </div>
 
-        fetchFavorites();
+    <!-- Favorites -->
+    <div class="section">
+      <h2>Favorites</h2>
+      <div id="favorites" class="empty-message">No favorites added yet.</div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const searchBtn = document.getElementById("search-btn");
+
+      searchBtn.addEventListener("click", search);
+      fetchFavorites();
+      fetchRecentlyPlayed();
+    });
+
+    async function search() {
+      const query = document.getElementById("search-query").value.trim();
+      if (!query) {
+        alert("Please enter a search query.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+        const data = await response.json();
+
+        const resultsContainer = document.getElementById("results");
+        resultsContainer.innerHTML = "";
+
+        if (data.type === "song") {
+          displaySongs(data.songs);
+        } else {
+          resultsContainer.innerHTML = "<p class='empty-message'>No results found.</p>";
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred while searching.");
+      }
+    }
+
+    function displaySongs(songs) {
+      const resultsContainer = document.getElementById("results");
+      resultsContainer.innerHTML = "<h2>Songs</h2>";
+
+      songs.forEach(song => {
+        const songElement = document.createElement("div");
+        songElement.className = "card";
+        songElement.innerHTML = `
+          <h3>${song.name} by ${song.artist}</h3>
+          Album: ${song.album}
+          <audio class="audio-player" controls src="${song.preview_url}" onplay="addToRecentlyPlayed('${song.name}', '${song.artist}', '${song.album}', '${song.preview_url}')"></audio>
+          <div class="actions">
+            <button onclick="addToFavorites('${song.name}', '${song.artist}', '${song.album}', '${song.preview_url}')">Add to Favorites</button>
+          </div>
+        `;
+        resultsContainer.appendChild(songElement);
       });
+    }
 
-      async function searchAlbums() {
-        const artistName = document.getElementById("artist-name").value.trim();
-        if (!artistName) return alert("Enter an artist name.");
-
-        try {
-          const response = await fetch(`/artist/${encodeURIComponent(artistName)}`);
-          const data = await response.json();
-          if (response.ok) displayAlbums(data);
-          else alert(data.detail || "Error fetching albums.");
-        } catch (error) {
-          console.error("Error:", error);
-        }
-      }
-
-      async function searchSongs() {
-        const songTitle = document.getElementById("song-title").value.trim();
-        if (!songTitle) return alert("Enter a song title.");
-
-        try {
-          const response = await fetch(`/song/${encodeURIComponent(songTitle)}`);
-          const data = await response.json();
-          if (response.ok) displaySongs(data.songs);
-          else alert(data.detail || "Error fetching songs.");
-        } catch (error) {
-          console.error("Error:", error);
-        }
-      }
-
-      function displayAlbums(data) {
-        const albumsContainer = document.getElementById("albums");
-        albumsContainer.innerHTML = "";
-
-        if (!data.albums || !data.albums.length) {
-          albumsContainer.innerHTML = "<p>No albums found.</p>";
-          return;
-        }
-
-        data.albums.forEach((album) => {
-          const albumElement = document.createElement("div");
-          albumElement.classList.add("album");
-          albumElement.innerHTML = `
-            <h2>${album.title}</h2>
-            <p>By ${data.name}</p>
-          `;
-          albumsContainer.appendChild(albumElement);
+    async function addToFavorites(title, artist, album, previewUrl) {
+      try {
+        const response = await fetch("/favorites", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, artist, album, preview_url: previewUrl }),
         });
+        fetchFavorites();
+      } catch (error) {
+        console.error("Error adding to favorites:", error);
       }
+    }
 
-      function displaySongs(songs) {
-        const songsContainer = document.getElementById("songs");
-        songsContainer.innerHTML = "";
-
-        if (!songs || !songs.length) {
-          songsContainer.innerHTML = "<p>No songs found.</p>";
-          return;
-        }
-
-        songs.forEach((song) => {
-          const songElement = document.createElement("div");
-          songElement.classList.add("song");
-          songElement.innerHTML = `
-            <div>
-              <strong>${song.title}</strong> by ${song.artist}<br />
-              Album: ${song.album}
-              <audio class="audio-player" controls src="${song.preview_url}"></audio>
-              <div class="favorite-actions">
-                <button onclick="addToFavorites('${song.title}', '${song.artist}', '${song.album}', '${song.preview_url}')">Add to Favorites</button>
-              </div>
-            </div>
-          `;
-          songsContainer.appendChild(songElement);
+    async function addToRecentlyPlayed(title, artist, album, previewUrl) {
+      try {
+        await fetch("/recently-played", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, artist, album, preview_url: previewUrl }),
         });
+        fetchRecentlyPlayed();
+      } catch (error) {
+        console.error("Error adding to recently played:", error);
       }
+    }
 
-      async function addToFavorites(title, artist, album, previewUrl) {
-        try {
-          const response = await fetch("/favorites", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, artist, album, preview_url: previewUrl }),
-          });
-          const data = await response.json();
-          if (response.ok) fetchFavorites();
-          else alert(data.detail || "Error adding to favorites.");
-        } catch (error) {
-          console.error("Error:", error);
-        }
-      }
-
-      async function fetchFavorites() {
-        try {
-          const response = await fetch("/favorites");
-          const data = await response.json();
-          displayFavorites(data.favorites || []);
-        } catch (error) {
-          console.error("Error:", error);
-        }
-      }
-
-      function displayFavorites(favorites) {
+    async function fetchFavorites() {
+      try {
+        const response = await fetch("/favorites");
+        const data = await response.json();
         const favoritesContainer = document.getElementById("favorites");
         favoritesContainer.innerHTML = "";
 
-        if (!favorites.length) {
-          favoritesContainer.innerHTML = "<p>No favorite songs yet.</p>";
+        if (!data.favorites.length) {
+          favoritesContainer.innerHTML = "<p class='empty-message'>No favorites added yet.</p>";
           return;
         }
 
-        favorites.forEach((fav) => {
-          const favoriteElement = document.createElement("div");
-          favoriteElement.classList.add("favorite");
-          favoriteElement.innerHTML = `
-            <strong>${fav.title}</strong> by ${fav.artist}<br />
-            Album: ${fav.album}
-            <audio class="audio-player" controls src="${fav.preview_url}"></audio>
+        data.favorites.forEach(song => {
+          const songElement = document.createElement("div");
+          songElement.className = "card";
+          songElement.innerHTML = `
+            <h3>${song.title}</h3>
+            Artist: ${song.artist}<br />
+            Album: ${song.album}
+            <audio class="audio-player" controls src="${song.preview_url}"></audio>
           `;
-          favoritesContainer.appendChild(favoriteElement);
+          favoritesContainer.appendChild(songElement);
         });
+      } catch (error) {
+        console.error("Error fetching favorites:", error);
       }
-    </script>
-  </body>
+    }
+
+    async function fetchRecentlyPlayed() {
+      try {
+        const response = await fetch("/recently-played");
+        const data = await response.json();
+        const recentlyPlayedContainer = document.getElementById("recently-played");
+        recentlyPlayedContainer.innerHTML = "";
+
+        if (!data.recently_played.length) {
+          recentlyPlayedContainer.innerHTML = "<p class='empty-message'>No recently played songs.</p>";
+          return;
+        }
+
+        data.recently_played.forEach(song => {
+          const songElement = document.createElement("div");
+          songElement.className = "card";
+          songElement.innerHTML = `
+            <h3>${song.title}</h3>
+            Artist: ${song.artist}<br />
+            Album: ${song.album}
+            <audio class="audio-player" controls src="${song.preview_url}"></audio>
+          `;
+          recentlyPlayedContainer.appendChild(songElement);
+        });
+      } catch (error) {
+        console.error("Error fetching recently played songs:", error);
+      }
+    }
+  </script>
+</body>
 </html>
+
