@@ -3,6 +3,10 @@ from pydantic import BaseModel
 from typing import Optional, List
 from service.itunes import search_song_by_title
 import os
+import pygame
+
+# Inicializar pygame mixer para manejar audio
+pygame.mixer.init()
 
 # Logging the current working directory
 print("Current working directory:", os.getcwd())
@@ -87,3 +91,64 @@ def get_recently_played():
     Returns the list of recently played songs.
     """
     return {"recently_played": recently_played}
+
+# Variable global para rastrear el estado actual
+current_song = None
+
+@app.post("/play")
+def play_song(song: FavoriteSong):
+    """
+    Play a song by its preview URL. Stops any currently playing song.
+    """
+    global current_song_file
+
+    try:
+        if not song.preview_url:
+            raise HTTPException(status_code=400, detail="Song has no preview URL.")
+
+        # Detener y reiniciar el mixer para asegurarnos de que no se reproduzcan varias canciones
+        pygame.mixer.quit()
+        pygame.mixer.init()
+
+        # Descargar la canción temporalmente
+        response = requests.get(song.preview_url, stream=True)
+        if response.status_code != 200:
+            raise HTTPException(status_code=400, detail="Failed to fetch the song preview.")
+
+        # Eliminar el archivo temporal anterior si existe
+        if current_song_file and os.path.exists(current_song_file):
+            os.remove(current_song_file)
+
+        # Guardar el archivo temporalmente
+        temp_file = "temp_song.mp3"
+        with open(temp_file, "wb") as file:
+            file.write(response.content)
+        current_song_file = temp_file
+
+        # Cargar y reproducir la canción
+        pygame.mixer.music.load(temp_file)
+        pygame.mixer.music.play()
+        print(f"Now playing: {song.title} by {song.artist}")
+
+        return {"message": f"Playing {song.title} by {song.artist}"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/stop")
+def stop_song():
+    """
+    Stop the currently playing song.
+    """
+    global current_song_file
+
+    try:
+        if pygame.mixer.music.get_busy():
+            pygame.mixer.music.stop()
+            print("Playback stopped.")
+            return {"message": "Playback stopped."}
+        else:
+            return {"message": "No song is currently playing."}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

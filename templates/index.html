@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" href="/assets/icon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Music Catalog</title>
+  <title>Music Catalog by Resilient Phantoms Group</title>
   <style>
     /* Global Styles */
     body {
@@ -178,23 +179,37 @@
     }
 
     function displaySongs(songs) {
-      const resultsContainer = document.getElementById("results");
-      resultsContainer.innerHTML = "<h2>Songs</h2>";
+  const resultsContainer = document.getElementById("results");
+  resultsContainer.innerHTML = "<h2>Songs</h2>";
 
-      songs.forEach(song => {
-        const songElement = document.createElement("div");
-        songElement.className = "card";
-        songElement.innerHTML = `
-          <h3>${song.name} by ${song.artist}</h3>
-          Album: ${song.album}
-          <audio class="audio-player" controls src="${song.preview_url}" onplay="addToRecentlyPlayed('${song.name}', '${song.artist}', '${song.album}', '${song.preview_url}')"></audio>
-          <div class="actions">
-            <button onclick="addToFavorites('${song.name}', '${song.artist}', '${song.album}', '${song.preview_url}')">Add to Favorites</button>
-          </div>
-        `;
-        resultsContainer.appendChild(songElement);
+  songs.forEach(song => {
+    const songElement = document.createElement("div");
+    songElement.className = "card";
+    songElement.innerHTML = `
+      <h3>${song.name} by ${song.artist}</h3>
+      Album: ${song.album}
+      <audio class="audio-player" controls src="${song.preview_url}" onplay="addToRecentlyPlayed('${song.name}', '${song.artist}', '${song.album}', '${song.preview_url}')"></audio>
+      <div class="actions">
+        <button onclick="addToFavorites('${song.name}', '${song.artist}', '${song.album}', '${song.preview_url}')">Add to Favorites</button>
+      </div>
+    `;
+    resultsContainer.appendChild(songElement);
+  });
+
+  // Reattach event listeners to new audio players
+  const audioPlayers = document.querySelectorAll(".audio-player");
+  audioPlayers.forEach(audio => {
+    audio.addEventListener("play", () => {
+      audioPlayers.forEach(otherAudio => {
+        if (otherAudio !== audio) {
+          otherAudio.pause();
+          otherAudio.currentTime = 0; // Reset the playback position
+        }
       });
-    }
+    });
+  });
+}
+
 
     async function addToFavorites(title, artist, album, previewUrl) {
       try {
@@ -277,6 +292,41 @@
         console.error("Error fetching recently played songs:", error);
       }
     }
+    document.addEventListener("DOMContentLoaded", () => {
+    const searchBtn = document.getElementById("search-btn");
+
+    searchBtn.addEventListener("click", search);
+    fetchFavorites();
+    fetchRecentlyPlayed();
+
+    // Ensure only one audio element plays at a time
+    const audioPlayers = document.querySelectorAll(".audio-player");
+    audioPlayers.forEach(audio => {
+      audio.addEventListener("play", () => {
+        audioPlayers.forEach(otherAudio => {
+          if (otherAudio !== audio) {
+            otherAudio.pause();
+            otherAudio.currentTime = 0; // Reset the playback position
+          }
+        });
+      });
+    });
+  });
+  
+// Ensure only one audio element plays at a time
+const audioPlayers = document.querySelectorAll(".audio-player");
+audioPlayers.forEach(audio => {
+  audio.addEventListener("play", () => {
+    audioPlayers.forEach(otherAudio => {
+      if (otherAudio !== audio) {
+        otherAudio.pause();
+        otherAudio.currentTime = 0; // Reset the playback position
+      }
+    });
+  });
+});
+
+
   </script>
 </body>
 </html>
