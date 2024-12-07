@@ -117,11 +117,45 @@
       color: #c71585;
       font-size: 1.1rem;
     }
+
+    /* Dark Mode Variables */
+      
+    .dark-mode-toggle {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: var(--button-bg);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .dark-mode-toggle:hover {
+        background-color: var(--button-hover);
+      }
+      :root {
+        --bg-color: #f0f0f0;
+        --text-color: #333333;
+        --container-bg: #ffffff;
+        --button-bg: #989898;
+        --button-hover: #7c5d68;
+      }
+      body.dark-mode {
+        --bg-color: #181818;
+        --text-color: #ffffff;
+        --container-bg: #282828;
+        --button-bg: #ff69b4;
+        --button-hover: #db7093;
+      }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Music Catalog</h1>
+  <div class="container" id="container">
+    <button id="darkModeToggle" class="dark-mode-toggle">🌙</button>
+    <h1 class="title">Music Catalog</h1>
 
     <!-- Search -->
     <div class="search-box">
@@ -133,13 +167,13 @@
 
     <!-- Recently Played -->
     <div class="section">
-      <h2>Recently Played</h2>
+      <h2 class="title">Recently Played</h2>
       <div id="recently-played" class="empty-message">No recently played songs.</div>
     </div>
 
     <!-- Favorites -->
     <div class="section">
-      <h2>Favorites</h2>
+      <h2 class="title">Favorites</h2>
       <div id="favorites" class="empty-message">No favorites added yet.</div>
     </div>
   </div>
@@ -245,7 +279,7 @@
         favoritesContainer.innerHTML = "";
 
         if (!data.favorites.length) {
-          favoritesContainer.innerHTML = "<p class='empty-message'>No favorites added yet.</p>";
+          favoritesContainer.innerHTML = "<p class='empty-message title'>No favorites added yet.</p>";
           return;
         }
 
@@ -314,18 +348,42 @@
   });
   
 // Ensure only one audio element plays at a time
-const audioPlayers = document.querySelectorAll(".audio-player");
-audioPlayers.forEach(audio => {
-  audio.addEventListener("play", () => {
-    audioPlayers.forEach(otherAudio => {
-      if (otherAudio !== audio) {
-        otherAudio.pause();
-        otherAudio.currentTime = 0; // Reset the playback position
+    const audioPlayers = document.querySelectorAll(".audio-player");
+    audioPlayers.forEach(audio => {
+      audio.addEventListener("play", () => {
+        audioPlayers.forEach(otherAudio => {
+          if (otherAudio !== audio) {
+            otherAudio.pause();
+            otherAudio.currentTime = 0; // Reset the playback position
+          }
+        });
+      });
+    });
+    const toggleButton = document.getElementById("darkModeToggle");
+    const body = document.body;
+    const titleElements = document.querySelectorAll(".title")
+    const container = document.getElementById("container");
+
+    // Add event listener for the toggle button
+    toggleButton.addEventListener("click", () => {
+      // Toggle the 'dark-mode' class on the body
+      body.classList.toggle("dark-mode");
+
+      // Update the button text based on the current mode
+      if (body.classList.contains("dark-mode")) {
+        toggleButton.textContent = "☀️";
+        body.style.backgroundColor = "#989898";
+        container.style.backgroundColor = "#7c5d68";
+        titleElements.forEach((title) => {title.style.color = "#4a213b";
+  });
+      } else {
+        toggleButton.textContent = "🌙";
+        body.style.backgroundColor= "#ffe4e1"; 
+        container.style.backgroundColor = "#fff0f5";
+        titleElements.forEach((title) => {title.style.color = "#c71585";});
       }
     });
-  });
-});
-
+    
 
   </script>
 </body>
